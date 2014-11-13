@@ -10,7 +10,7 @@ import sys
 
 def GetTable(img):
 	# fill the summed area table
-	table = np.empty(img.shape)
+	table = np.empty(img.shape, dtype=int)
 	for m in range(img.shape[0]):
 		for n in range(img.shape[1]):
 			if m==0 and n==0:
@@ -24,24 +24,26 @@ def GetTable(img):
 	return table
 
 class Images():
- 	numfaces = 11839
- 	numnonfaces = 45357
  	def __init__(self, path, isface, samplesize, imgwidth=16):
  		#face16_000001.bmp
+ 		self.numfaces = 11838
+ 		self.numnonfaces = 45356
  		self.path = path
  		self.isface = isface
  		self.samplesize = samplesize
  		#np.random.seed(2014)
-		self.samples = range(1, self.numfaces if isface else self.numnonfaces)
- 		np.random.shuffle(self.samples)
+		self.samples = range(1, self.numfaces+1 if isface else self.numnonfaces+1)
+		flag = (samplesize==self.numfaces) if isface else (samplesize==self.numnonfaces)
+		if not flag:
+ 			np.random.shuffle(self.samples)
  		self.samples = self.samples[0:samplesize]
  		self.imgwidth = imgwidth
  	
  	#### Load Image
- 		subpath = ("face16_" if self.isface else "nonface16_")
+ 		subpath = ("face" if self.isface else "nonface") + str(self.imgwidth)+"_"
  		#+"{:0>6d}".format()
- 		self.imgs = np.empty([self.samplesize,self.imgwidth, self.imgwidth])
- 		self.tables = np.empty([self.samplesize,self.imgwidth, self.imgwidth])
+ 		self.imgs = np.empty([self.samplesize,self.imgwidth, self.imgwidth], dtype=int)
+ 		self.tables = np.empty([self.samplesize,self.imgwidth, self.imgwidth], dtype=int)
  		for i in range(self.samplesize):
  			self.imgs[i] = misc.imread(self.path+subpath+"{:0>6d}".format(self.samples[i])+".bmp",flatten=True)
  			self.tables[i] = GetTable(self.imgs[i])
@@ -258,7 +260,16 @@ class Features():
 				myset.add(curkey)
 		print "Complete! Result shape:", result.shape
 		return result
-	def GetFeatureImg(self, feature, type, vertical=True):
+	def GetFeatureImg(self, feature, ftype):
+		if ftype<=2:
+			type = 1
+			vertical = True if ftype==1 else False
+		elif ftype<=4:
+			type = 2
+			vertical = True if ftype==3 else False
+		else:
+			## 5, 6 --> 3,4
+			type = ftype - 2
 		print "current feature,", feature
 		print "type,", type
 		testimage = np.zeros([self.imgwidth, self.imgwidth])
@@ -295,12 +306,19 @@ class Features():
 
 # for a given image, for a given type of features, get all the scores
 class Scores():
-	def __init__(self, table, features=None, ftype=1, vertical=True):
+	def __init__(self, table, features=None, ftype=1):
 		self.table = table
 		self.imgwidth = table.shape[0]
 		self.features = features
-		self.type = ftype
-		self.vertical = vertical
+		if ftype<=2:
+			self.type = 1
+			self.vertical = True if ftype==1 else False
+		elif ftype<=4:
+			self.type = 2
+			self.vertical = True if ftype==3 else False
+		else:
+			## 5, 6 --> 3,4
+			self.type = ftype - 2
 		#print "\nNew Table Initialized. Feature Type:", self.type, "Vertical:", self.vertical, "Number of features:", features.shape[0]
 		#print  "Preparing to calculate the scores.."
 
@@ -448,7 +466,7 @@ class Scores():
 			return (c4-c3-c2+c1)-2*(c8-c7-c6+c5)
 	
 	def getScores(self):
-		result = np.empty([1, self.features.shape[0]])
+		result = np.empty([1, self.features.shape[0]], dtype=int)
 		for i in range(self.features.shape[0]):
 			result[0, i] = self.getScore(self.features[i])
 			# if i>100 and i%100==0:
@@ -466,7 +484,7 @@ def test():
 	type = 4
 	f = Features(width)
 	result = f.rand_feature4(1, vertical=vflag)
-	featureimg = f.GetFeatureImg(result[0], type, vertical=vflag)
+	featureimg = f.GetFeatureImg(result[0], 4)
 	print "feature image,\n", featureimg
 	table = GetTable(featureimg)
 	print f.getScore(table, result[0], type=type)
