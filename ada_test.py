@@ -113,6 +113,7 @@ class ProcessWorker(Process):
 		print "map min error", minResult[1]
 		self.mapResult.append((minResult,minRow))
 		print "fType"+str(self.ftype)+", mID"+str(mid)+" finished."
+		print "Min Feature:", minRow
 
 	def Reduce(self):
 		minError = 1
