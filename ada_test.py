@@ -229,7 +229,7 @@ class FeaturePool():
 
 	def GetFeaturePool(self, ftype):
 		print self.mask[ftype-1,:].shape
-		print self.scores.shape
+		print self.scores[ftype-1].shape
 		return self.scores[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetLabels(self,ftype):
