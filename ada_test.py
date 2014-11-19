@@ -71,11 +71,14 @@ class ProcessWorker(Process):
 					error += self.weights[j]
 				else:
 					error -= self.weights[j]
-				print j, error
 				if error>maxerror[1]:
+					print "Bigger found"
+					print j, error
 					maxerror[0] = j
 					maxerror[1] = error
 				if error<minerror[1]:
+					print "Smaller found"
+					print j, error
 					minerror[0] = j
 					minerror[1] = error
 			if 1- maxerror[1] < minerror[1]:
