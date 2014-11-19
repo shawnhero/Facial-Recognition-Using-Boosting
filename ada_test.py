@@ -195,7 +195,7 @@ class FeaturePool():
 	# 3. return the alpha and updated weights to inform others
 	def ReduceWorkers(self):
 		self.min_error = 1
-		while(!Q.empty()):
+		while not Q.empty():
 			item = Q.get()
 			if item[2] < self.min_error:
 				self.min_type = item[0]
