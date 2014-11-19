@@ -246,7 +246,7 @@ def test():
 	#ftypeMax, num_feature, num_sample)
 	fpool = FeaturePool(1, 1000, 6000*2)
 	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
-	p.MapFind(range(1000), 0)
+	p.MapFind([331], 0)
 
 	print "\nIteration"
 
