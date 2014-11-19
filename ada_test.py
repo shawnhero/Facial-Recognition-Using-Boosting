@@ -105,6 +105,7 @@ class ProcessWorker(Process):
 				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.0%}".format(1.0*i/len(rowlist)), "done.."
 				lock.release()
 			error_infor = self.FindFeatureError(row)
+			print row,error_infor[1]
 			if error_infor[1]<minError:
 				minError = error_infor[1]
 				minResult = error_infor
@@ -248,10 +249,9 @@ def test():
 	#ftypeMax, num_feature, num_sample)
 	fpool = FeaturePool(1, 1000, 6000*2)
 	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
-	p.start()
-	p.join()
-	fpool.ReduceWorkers()
-	print "\nIteration",t,"Finished!"
+	p.MapFind([0], 0)
+
+	print "\nIteration"
 
 
 if __name__ == "__main__":
