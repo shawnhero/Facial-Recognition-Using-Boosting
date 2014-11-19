@@ -105,11 +105,11 @@ class ProcessWorker(Process):
 				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.0%}".format(1.0*i/len(rowlist)), "done.."
 				lock.release()
 			error_infor = self.FindFeatureError(row)
-			print "error", error_infor[1]
 			if error_infor[1]<minError:
 				minError = error_infor[1]
 				minResult = error_infor
 				minRow = row
+		print "map min error", minResult[1]
 		self.mapResult.append((minResult,minRow))
 		print "fType"+str(self.ftype)+", mID"+str(mid)+" finished."
 
