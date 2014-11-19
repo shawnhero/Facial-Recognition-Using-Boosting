@@ -9,13 +9,12 @@ import sys
 
 savepath = "/Users/Shawn/cs276/data/"
 lock = threading.Lock()
-class ProcessWorker(Process):
+class ProcessWorker():
 	"""
 	This class runs as a separate process to execute worker's commands in parallel
 	Once launched, it remains running, monitoring the task queue, until "None" is sent
 	"""
 	def __init__(self, ftype, numfaces, numnonfaces):
-		Process.__init__(self)
 		# load the table
 		self.ftype = ftype
 		self.f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','r')
@@ -27,6 +26,7 @@ class ProcessWorker(Process):
 
 		# initialize the pools
 		self.pool = range(self.num_feature)
+		self.mapResult = []
 		return
 	def changeweights(self, newweights):
 		self.weights = newweights
@@ -37,7 +37,7 @@ class ProcessWorker(Process):
 	# 3. return the alpha and updated weights to inform others
 	def featureChosen(self):
 		print "Min error found:", self.min_error
-		
+		print "postion:", self.min_row
 		# calculate the alpha
 		self.alpha = 0.5*np.log((1-self.min_error)/self.min_error)
 		
@@ -70,6 +70,7 @@ class ProcessWorker(Process):
 
 	# get the weighted error for the i-th feature
 	# return decision threshold, error, decision flag
+	#@staticmethod
 	def FindFeatureError(self,row):
 		# understand the threshold
 		# http://stackoverflow.com/questions/9777282/the-best-way-to-calculate-the-best-threshold-with-p-viola-m-jones-framework
@@ -108,13 +109,11 @@ class ProcessWorker(Process):
 
 	# one thread responsible for multiple rows
 	def MapFind(self, rowlist):
-		print "Mapper Entered!"
+		print rowlist
 		minError = 1
 		minRow = None
 		for row in rowlist:
-			print 'before find'
 			error_infor = self.FindFeatureError(row)
-			print 'after find'
 			if error_infor[1]<minError:
 				minError = error_infor[1]
 				minResult = error_infor
@@ -123,20 +122,24 @@ class ProcessWorker(Process):
 		# self.count += 1
 		# print "Current Loop: Mapping", "{0:.1%}".format(1.0*self.count/self.threadnum)
 		# lock.release()
-		return [(0, [minResult,minRow])]
+		#return [(0, [minResult,minRow])]
+		self.mapResult.append((minResult,minRow))
 
-	def Reduce(self,item):
-		key, mins = item
+	def Reduce(self):
 		minError = 1
 		minRow = None
 		result = None
-		for error_infor,row in mins:
+		for error_infor,row in mapResult:
 			if error_infor[1]<minError:
 				minError =error_infor[1]
 				result = error_infor
 				minRow = row
 		print 'Reduced: feature withMinimum error', minRow
-		return (minRow, result)
+		self.mapResult = []
+		self.min_threshold = result[0]
+		self.min_error = result[1]
+		self.min_flag = result[2]
+		self.min_row = minRow
 
 	def run(self):
 		## findMinError
@@ -148,82 +151,36 @@ class ProcessWorker(Process):
 		self.min_error = 1
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
-		rows = 3
-		self.threadnum = (len(self.pool)+2)/3
-		rows = len(self.pool)/self.threadnum
+		threadnum = 10
+		rows = len(self.pool)/threadnum
 		list_rowlists = [self.pool[x:x+rows] for x in xrange(0, len(self.pool), rows)]
-		mapper = SimpleMapReduce(self.MapFind, self.Reduce, num_workers=self.threadnum)
-		print 'before mapper'
-		result = mapper(list_rowlists)
-		print result
-		#self.min_row, error_infor
+		threadnum = len(list_rowlists)
+		# use 10 thread for each process to find the min
+		threads = []
+		for i in range(threadnum):
+			self.MapFind(list_rowlists[i])
+			# t = threading.Thread(target=self.MapFind, args=(list_rowlists[i],))
+			# threads.append(t)
+			# t.start()
+		# for i in range(threadnum):
+		# 	t.join()
+		self.Reduce()
 
-		self.min_threshold = error_infor[0]
-		self.min_error = error_infor[1]
-		self.min_flag = error_infor[2]
+		
 		# it += 1
 		# if it%10==0:
 		# 	print 'type'+str(self.ftype),"{0:.1%}".format(float(it)/len(self.pool)), ' search completed'
 		return
 
 
-
-if __name__ == "__main__":
-	start = timeit.default_timer()
-	T = 3
-	t = 0
-	# initialize the weights
+if __name__ == '__main__':
 	num_sample = 6000*2
 	D = np.empty(num_sample)
 	D.fill(1.0/num_sample)
-
-	# initialize the subprocesses
-	# load the tables
-	pros = []
-	for i in range(1,2):
-		p = ProcessWorker(i, 6000, 6000)
-		# initialize the weights
-		p.changeweights(D)
-		pros.append(p)
-	# feature positions
-	fpos = []
-	while t<T: 
-		t += 1
-		if t==1:
-			# first fetch
-			alpha, D = pros[0].firstFetch()
-			minpos = (0,0)
-		else:
-			for p in pros:
-				p.start()
-			for p in pros:
-				p.join()
-			# find the min error
-			minerror = 1
-			minpos = 0
-			for i in range(len(pros)):
-				error, row = pros[i].fetchResult()
-				if error < minerror:
-					minerror = error
-					minpos = (i, row)
-			print 'minpos',minpos
-			# remove the chosen feature from the pool
-			alpha, D = pros[minpos[0]].featureChosen()
-		# store the chosen feature's position
-		fpos.append(minpos)
-		
-		# update the weights of the data points
-		for i in pros:
-			p.changeweights(D)
-	print "chosen features:", fpos
-	stop = timeit.default_timer()
-	print "Time Used,", round(stop - start, 4)
-
-		
-def test():
-	labels = [1,1,1,0,0,0]
-	classifiers = [[1,1,0,1,0,0], [1,1,1,1,0,0]]
-	ada = adaboosting(np.asarray(classifiers).transpose(), np.asarray(labels), 1)
-	ada.boosting()
-
-	return 1
+	p = ProcessWorker(1, 6000, 6000)
+	p.changeweights(D)
+	alpha, D = p.firstFetch()
+	error, row = p.fetchResult()
+	p.run()
+	alpha, D = p.featureChosen()
+	p.changeweights(D)

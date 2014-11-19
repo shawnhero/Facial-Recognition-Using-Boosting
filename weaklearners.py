@@ -466,9 +466,9 @@ class Scores():
 			return (c4-c3-c2+c1)-2*(c8-c7-c6+c5)
 	
 	def getScores(self):
-		result = np.empty([1, self.features.shape[0]], dtype=int)
+		result = np.empty(self.features.shape[0], dtype=int)
 		for i in range(self.features.shape[0]):
-			result[0, i] = self.getScore(self.features[i])
+			result[i] = self.getScore(self.features[i])
 			# if i>100 and i%100==0:
 			# 	#print "completed 100.."
 		#print "All Complete!!"

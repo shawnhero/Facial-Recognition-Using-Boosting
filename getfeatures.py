@@ -2,12 +2,13 @@ import adaboosting as ada
 import weaklearners as weak
 import numpy as np
 import timeit
+import h5py
 # import thread
 import threading
 from multiprocessing import Process
 
 
-savepath = "/Users/Shawn/cs276/"
+savepath = "/Users/Shawn/cs276/data/"
 
 
 class Combo():
@@ -46,14 +47,19 @@ class Combo():
 #	# type 1-4: fill the nonface table part1-4
 
 	def FillTable(self, ftype):
-		train_scores = np.empty([self.numfaces+self.numnonfaces, self.numsamples_per_feature], dtype=int)
+		#python stores tables in a Row-major order
+		# As we need to access the data by feature
+		# so one row will be one feature
+		train_scores = np.empty([self.numsamples_per_feature, self.numfaces+self.numnonfaces], dtype=int)
+		labels = np.concatenate((np.ones([self.numsamples_per_feature, self.numfaces],dtype=bool), np.zeros([self.numsamples_per_feature, self.numnonfaces], dtype=bool)), axis=1)
 		self.lock.acquire()
-		print "shape,", train_scores.shape
+		print "train_score shape,", train_scores.shape
+		print "labels shape,", labels.shape
 		self.lock.release()
 		## fill the score tables
 		for i in range(self.numfaces):
 			curscore = weak.Scores(self.face_tables[i], features=self.features[ftype-1], ftype=ftype)
-			train_scores[i]  = curscore.getScores()
+			train_scores[:,i]  = curscore.getScores()
 			if i>=50 and i%50==0:
 				self.lock.acquire()
 				print "type"+str(ftype)+" completed", "{0:.1%}".format(float(i)/(self.numfaces+self.numnonfaces)), " out of", self.numfaces+self.numnonfaces
@@ -61,16 +67,29 @@ class Combo():
 
 		for i in range(self.numfaces,self.numfaces+self.numnonfaces):
 			curscore = weak.Scores(self.nonface_tables[i-self.numfaces], features=self.features[ftype-1], ftype=ftype)
-			train_scores[i]  = curscore.getScores()
+			train_scores[:,i]  = curscore.getScores()
 			if i%50==0:
 				self.lock.acquire()
 				print "type"+str(ftype)+" completed", "{0:.1%}".format(float(i)/(self.numfaces+self.numnonfaces)), " out of", self.numfaces+self.numnonfaces
 				self.lock.release()
+
+		###
+		# sort the table row by row
+		self.lock.acquire()
+		print 'type'+str(ftype)+' table generated. Now begin sorting..'
+		self.lock.release()
+		for row in range(self.numsamples_per_feature):
+			cur_order = train_scores[row,:].argsort(kind='heapsort')
+			train_scores[row,:] = train_scores[row, cur_order]
+			labels[row,:] = labels[row, cur_order]
 		# save the results
 		self.lock.acquire()
-		print "\nSaving feature scores: type "+str(ftype)
+		print 'type'+str(ftype)+' sorting completed. Now begin saving..'
 		self.lock.release()
-		np.save(savepath+'scores_feature_type'+str(ftype), train_scores)
+		f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','w-')
+		f.create_dataset("type"+str(ftype), data=train_scores)
+		f.create_dataset("labels", data=labels)
+		f.close()
 		self.lock.acquire()
 		print "Save Completed!"
 		self.lock.release()
@@ -93,7 +112,7 @@ def getFeature(i, numfeatures):
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	comb = Combo(numfaces=11838,numnonfaces=45356,numfeatures=12000, imgwidth=24)
+	comb = Combo(numfaces=6000,numnonfaces=6000,numfeatures=6000, imgwidth=24)
 	comb.PrepareFeatures()
 	pros = []
 	for i in range(1,7):
