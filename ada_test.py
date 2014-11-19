@@ -93,8 +93,7 @@ class ProcessWorker(Process):
 	# one thread responsible for multiple rows
 	def MapFind(self, rowlist, mid):
 		lock.acquire()
-		print "fType"+str(self.ftype)+", mID"+str(mid)+". Mapping:", rowlist[0],"to",rowlist[len(rowlist)-1], "Number,", len(rowlist)
-		print 
+		print "fType"+str(self.ftype)+", mID"+str(mid)+". Mapping.."
 		lock.release()
 		minError = 1
 		minRow = None
@@ -136,8 +135,8 @@ class ProcessWorker(Process):
 		"""
 		Overloaded function provided by multiprocessing.Process.  Called upon start() signal
 		"""
-		self.count = 0
 		print 'Starting Process type', self.ftype
+		print "Total number of samples,",self.num_sample
 		self.min_error = 1
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
