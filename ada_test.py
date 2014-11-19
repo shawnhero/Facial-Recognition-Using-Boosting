@@ -30,6 +30,7 @@ class ProcessWorker(Process):
 		self.labels = labels
 		self.weights = weights
 		self.mapResult = []
+		self.num_sample = scores.shape[1]
 		return
 	#
 	# def changeweights(self, newweights):
@@ -207,8 +208,8 @@ class FeaturePool():
 				self.min_threshold = item[3]
 				self.min_flag = item[4]
 			#(self.ftype, self.min_row, self.min_error, self.min_threshold, self.min_flag)
-		print "Min Error found:", min_error
-		print "fType:", min_error, "Position:", min_row
+		print "Min Error found:", self.min_error
+		print "fType:", self.min_error, "Position:", self.min_row
 		# calculate the alpha
 		alpha = 0.5*np.log((1-self.min_error)/self.min_error)
 		## store the selected feature
