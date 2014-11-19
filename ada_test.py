@@ -140,6 +140,7 @@ class ProcessWorker(Process):
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
 		threadnum = 15
+		self.pool = range(self.scores.shape[0])
 		rows = len(self.pool)/threadnum
 		list_rowlists = [self.pool[x:x+rows] for x in xrange(0, len(self.pool), rows)]
 		threadnum = len(list_rowlists)
