@@ -199,8 +199,8 @@ class FeaturePool():
 	def ReduceWorkers(self):
 		self.min_error = 1
 		while not Q.empty():
-			print "reducing,", item[2]
 			item = Q.get()
+			print "reducing,", item[2]
 			if item[2] < self.min_error:
 				self.min_type = item[0]
 				# getting the row number of the selected feature is tricky
