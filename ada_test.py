@@ -12,6 +12,7 @@ from mapreduce import SimpleMapReduce
 import sys
 
 savepath = "../saveddata/" 
+
 lock = threading.Lock()
 Q = Queue()
 class ProcessWorker(Process):
@@ -227,6 +228,8 @@ class FeaturePool():
 		
 
 	def GetFeaturePool(self, ftype):
+		print self.mask[ftype-1,:].shape
+		print self.score.shape
 		return self.scores[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetLabels(self,ftype):
