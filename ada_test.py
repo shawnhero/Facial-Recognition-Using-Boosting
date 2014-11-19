@@ -212,7 +212,7 @@ class FeaturePool():
 				self.min_flag = item[4]
 			#(self.ftype, self.min_row, self.min_error, self.min_threshold, self.min_flag)
 		print "Min Error found:", self.min_error
-		print "fType:", self.min_error, "Position:", self.min_row
+		print "fType:", self.min_type, "Position:", self.min_row
 		# calculate the alpha
 		alpha = 0.5*np.log((1-self.min_error)/self.min_error)
 		## store the selected feature
@@ -227,7 +227,7 @@ class FeaturePool():
 			# if above threshold and above is positive
 			cur_decision = 1 if (above == self.min_flag) else -1
 			cur_label = 1 if self.labels[self.min_type-1][self.min_row, i] else -1
-			self.weights[i] = self.weights[i]*np.exp(-cur_label*self.alpha*cur_decision)
+			self.weights[i] = self.weights[i]*np.exp(-cur_label*alpha*cur_decision)
 		self.weights = self.weights/sum(self.weights)
 		
 		
