@@ -243,7 +243,17 @@ class FeaturePool():
 
 	def GetWeights(self):
 		return self.weights
-		
+
+def test():
+	#ftypeMax, num_feature, num_sample)
+	fpool = FeaturePool(1, 2000, 6000*2)
+	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
+	p.start()
+	p.join()
+	fpool.ReduceWorkers()
+	print "\nIteration",t,"Finished!"
+
+	
 if __name__ == "__main__":
 	test()
 	sys.exit()
@@ -272,13 +282,6 @@ if __name__ == "__main__":
 	print "Time Used,", round(stop - start, 4)
 
 
-def test():
-	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(1, 2000, 6000*2)
-	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
-	p.start()
-	p.join()
-	fpool.ReduceWorkers()
-	print "\nIteration",t,"Finished!"
+
 
 
