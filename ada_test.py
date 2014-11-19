@@ -245,6 +245,8 @@ class FeaturePool():
 		return self.weights
 		
 if __name__ == "__main__":
+	test()
+	return
 	start = timeit.default_timer()
 	T = 3
 	t = 0
@@ -271,15 +273,12 @@ if __name__ == "__main__":
 
 
 def test():
-	num_sample = 6000*2
-	D = np.empty(num_sample)
-	D.fill(1.0/num_sample)
+	#ftypeMax, num_feature, num_sample)
+	fpool = FeaturePool(1, 2000, 6000*2)
+	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
+	p.start()
+	p.join()
+	fpool.ReduceWorkers()
+	print "\nIteration",t,"Finished!"
 
-	p = ProcessWorker(1, 6000, 6000)
-	p.changeweights(D)
-	alpha, D = p.firstFetch()
-	error, row = p.fetchResult()
-	p.run()
-	alpha, D = p.featureChosen()
-	p.changeweights(D)
-	p.run()
+
