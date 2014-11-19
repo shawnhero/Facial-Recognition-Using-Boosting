@@ -243,17 +243,15 @@ if __name__ == "__main__":
 	numfType = 2
 	#ftypeMax, num_feature, num_sample)
 	fpool = FeaturePool(2, 2000, 6000*2)
-	pros = []
-	for i in range(1,numfType+1):
-		#ftype, numfaces, numnonfaces, scores, labels, weights
-		p = ProcessWorker(i, 6000, 6000, fpool.GetFeaturePool(i), fpool.GetLabels(i))
-		pros.append(p)
-	# feature positions
-	fpos = []
+
 	while t<T: 
 		t += 1
-		for p in pros:
+		pros = []
+		for i in range(1,numfType+1):
+			#ftype, numfaces, numnonfaces, scores, labels, weights
+			p = ProcessWorker(i, 6000, 6000, fpool.GetFeaturePool(i), fpool.GetLabels(i), fpool.GetWeights())
 			p.start()
+			pros.append(p)
 		for p in pros:
 			p.join()
 		## to do, reduce work, find alpha, store alpha and min position,
