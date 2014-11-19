@@ -217,7 +217,7 @@ class FeaturePool():
 		self.selected.append((self.min_type, self.min_row))
 		## mask the selected feature 
 		print "Masking ftype"+str(self.min_type-1)+" row"+str(self.min_row)
-		self.mask[self.min_type-1, self.min_row] = True
+		self.mask[self.min_type-1, self.min_row] = False
 		
 		# update the weights of the data points
 		for i in range(self.num_sample):
