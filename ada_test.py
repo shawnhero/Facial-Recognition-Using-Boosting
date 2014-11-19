@@ -2,72 +2,49 @@
 import numpy as np
 from numpy import matrix
 import threading
-from multiprocessing import Process
+
+
+## the mechanism of process--class. values cannot be accessed after join
+#http://stackoverflow.com/questions/7545385/python-class-inheriting-multiprocessing-trouble-with-accessing-class-members
+from multiprocessing import Process, Queue
 import timeit
 from mapreduce import SimpleMapReduce
 import sys
 
 savepath = "../saveddata/" 
 lock = threading.Lock()
+Q = Queue()
 class ProcessWorker(Process):
 	"""
 	This class runs as a separate process to execute worker's commands in parallel
 	Once launched, it remains running, monitoring the task queue, until "None" is sent
 	"""
-	def __init__(self, ftype, numfaces, numnonfaces):
+	def __init__(self, ftype, scores, labels, weights):
 		Process.__init__(self)
 		# load the table
+		assert(scores.shape==labels.shape)
 		self.ftype = ftype
 		#self.f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','r')
-
-		self.scores = np.load(savepath+'scores_feature_type'+str(ftype)+'.npy')
-		self.labels = np.load(savepath+'scores_labels_type'+str(ftype)+'.npy')
-		self.num_sample = self.scores.shape[1]
-		assert(self.num_sample==numfaces+numnonfaces)
-		self.num_feature = self.scores.shape[0]
-
-		# initialize the pools
-		self.pool = range(self.num_feature)
+		self.scores = scores
+		self.labels = labels
+		self.weights = weights
 		self.mapResult = []
 		return
-	def changeweights(self, newweights):
-		self.weights = newweights
-
-	# to-do
-	# 1. remove the feature from the pool
-	# 2. update the weights
-	# 3. return the alpha and updated weights to inform others
-	def featureChosen(self):
-		print "Min error found:", self.min_error
-		print "postion:", self.min_row
-		# calculate the alpha
-		self.alpha = 0.5*np.log((1-self.min_error)/self.min_error)
-		
-		# update the weights of the data points
-		for i in range(self.num_sample):
-			above =  self.scores[self.min_row, i] > self.min_threshold
-			# if above threshold and above is positive
-			cur_decision = 1 if (above == self.min_flag) else -1
-			cur_label = 1 if self.labels[self.min_row, i] else -1
-			self.weights[i] = self.weights[i]*np.exp(-cur_label*self.alpha*cur_decision)
-		self.weights = self.weights/sum(self.weights)
-		try:
-			self.pool.remove(self.min_row)
-		except ValueError:
-			print 'min_row',self.min_row,'not in the list'
-			sys.exit()
-		return self.alpha, self.weights
+	#
+	# def changeweights(self, newweights):
+	# 	self.weights = newweights
 
 
-	def fetchResult(self):
-		print "fetching results for type",self.ftype
-		return self.min_error, self.min_row
-	def firstFetch(self):
-		# first attempt can be avoided
-		# see http://cplusadd.blogspot.com/2013/04/why-class-balancing-happens.html
-		self.min_threshold, self.min_error, self.min_flag = self.FindFeatureError(0)
-		self.min_row = 0
-		return self.featureChosen()
+	# def fetchResult(self):
+	# 	print "fetching results for type",self.ftype
+	# 	return self.min_error, self.min_row
+
+	# def firstFetch(self):
+	# 	# first attempt can be avoided
+	# 	# see http://cplusadd.blogspot.com/2013/04/why-class-balancing-happens.html
+	# 	self.min_threshold, self.min_error, self.min_flag = self.FindFeatureError(0)
+	# 	self.min_row = 0
+	# 	return self.featureChosen()
 
 
 	# get the weighted error for the i-th feature
@@ -83,7 +60,7 @@ class ProcessWorker(Process):
 			error = sum(self.weights[~self.labels[row,:]])
 			maxerror = [-1, error]
 			minerror = [-1, error]
-			for j in range(self.num_sample):
+			for j in range(self.labels.shape[1]):
 				# for those<=j, decide as negative
 				# for those>j, decide as positive
 				if self.labels[row,j]:
@@ -148,6 +125,7 @@ class ProcessWorker(Process):
 		self.min_error = result[1]
 		self.min_flag = result[2]
 		self.min_row = minRow
+		Q.put((self.ftype, self.min_row, self.min_error, self.min_threshold, self.min_flag))
 		print "fType"+str(self.ftype)+" reduced! Min Error", self.min_error
 
 	def run(self):
@@ -160,7 +138,7 @@ class ProcessWorker(Process):
 		self.min_error = 1
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
-		threadnum = 10
+		threadnum = 15
 		rows = len(self.pool)/threadnum
 		list_rowlists = [self.pool[x:x+rows] for x in xrange(0, len(self.pool), rows)]
 		threadnum = len(list_rowlists)
@@ -174,62 +152,112 @@ class ProcessWorker(Process):
 		for t in threads:
 			t.join()
 		self.Reduce()
-
-		
 		# it += 1
 		# if it%10==0:
 		# 	print 'type'+str(self.ftype),"{0:.1%}".format(float(it)/len(self.pool)), ' search completed'
 		return
 
 
+
+class FeaturePool():
+	def __init__(self, ftypeMax, num_feature, num_sample):
+		self.num_sample = num_sample
+		self.num_feature = num_feature
+		self.ftypeMax = ftypeMax
+		fNum = num_feature/ftypeMax
+
+		# initialize masks and positions to record selected ones
+		self.mask = np.ones((ftypeMax, fNum), dtype=bool)
+		self.index = range(fNum)
+
+
+		
+		## initialize weights
+		self.weights = np.empty(num_sample)
+		self.weights.fill(1.0/num_sample)
+
+		self.scores = []
+		self.labels = []
+		for i in range(ftypeMax):
+			score = np.load(savepath+'scores_feature_type'+str(i+1)+'.npy')
+			label = np.load(savepath+'scores_labels_type'+str(i+1)+'.npy')
+			scores.append(score)
+			labels.append(label)
+
+		self.alphas = []
+		self.selected = []
+
+
+	# to-do
+	# 0. reduce work, find minimum
+	# 1. remove the feature from the pool
+	# 2. update the weights
+	# 3. return the alpha and updated weights to inform others
+	def ReduceWorkers(self):
+		self.min_error = 1
+		while(!Q.empty()):
+			item = Q.get()
+			if item[2] < self.min_error:
+				self.min_type = item[0]
+				# getting the row number of the selected feature is tricky
+				self.min_row = self.index[self.mask[item[0]-1,:]][item[1]]
+				self.min_error = item[2]
+				self.min_threshold = item[3]
+				self.min_flag = item[4]
+			#(self.ftype, self.min_row, self.min_error, self.min_threshold, self.min_flag)
+		print "Min Error found:", min_error
+		print "fType:", min_error, "Position:", min_row
+		# calculate the alpha
+		alpha = 0.5*np.log((1-self.min_error)/self.min_error)
+		## store the selected feature
+		self.alphas.append(alpha)
+		self.selected.append((self.min_type, self.min_row))
+		## mask the selected feature 
+		self.mask[self.min_type-1, self.min_row] = True
+		
+		# update the weights of the data points
+		for i in range(self.num_sample):
+			above =  self.scores[self.min_type-1][self.min_row, i] > self.min_threshold
+			# if above threshold and above is positive
+			cur_decision = 1 if (above == self.min_flag) else -1
+			cur_label = 1 if self.labels[self.min_type-1][self.min_row, i] else -1
+			self.weights[i] = self.weights[i]*np.exp(-cur_label*self.alpha*cur_decision)
+		self.weights = self.weights/sum(self.weights)
+		
+		
+
+	def GetFeaturePool(self, ftype):
+		return self.scores[ftype-1][self.mask[ftype-1,:],:]
+
+	def GetLabels(self,ftype):
+		return self.labels[ftype-1][self.mask[ftype-1,:],:]
+
+	def GetWeights(self):
+		return self.weights
+		
 if __name__ == "__main__":
 	start = timeit.default_timer()
 	T = 3
 	t = 0
-	# initialize the weights
-	num_sample = 6000*2
-	D = np.empty(num_sample)
-	D.fill(1.0/num_sample)
-
-	# initialize the subprocesses
-	# load the tables
+	numfType = 2
+	fpool = FeaturePool(2, 6000, 6000*2)
 	pros = []
-	for i in range(1,3):
-		p = ProcessWorker(i, 6000, 6000)
-		# initialize the weights
-		p.changeweights(D)
+	for i in range(1,numfType+1):
+		#ftype, numfaces, numnonfaces, scores, labels, weights
+		p = ProcessWorker(i, 6000, 6000, fpool.GetFeaturePool(i), fpool.GetLabels(i))
 		pros.append(p)
 	# feature positions
 	fpos = []
 	while t<T: 
 		t += 1
-		if t==1:
-			# first fetch
-			alpha, D = pros[0].firstFetch()
-			minpos = (0,0)
-		else:
-			for p in pros:
-				p.start()
-			for p in pros:
-				p.join()
-			# find the min error
-			minerror = 1
-			minpos = 0
-			for i in range(len(pros)):
-				error, row = pros[i].fetchResult()
-				if error < minerror:
-					minerror = error
-					minpos = (i, row)
-			print 'minpos',minpos
-			# remove the chosen feature from the pool
-			alpha, D = pros[minpos[0]].featureChosen()
-		# store the chosen feature's position
-		fpos.append(minpos)
-		
-		# update the weights of the data points
-		for i in pros:
-			p.changeweights(D)
-	print "chosen features:", fpos
+		for p in pros:
+			p.start()
+		for p in pros:
+			p.join()
+		## to do, reduce work, find alpha, store alpha and min position,
+		## and change weights
+		print "\nIteration",t,"Finished!"
+		fpool.ReduceWorkers()
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
 
