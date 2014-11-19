@@ -233,13 +233,9 @@ class FeaturePool():
 		
 
 	def GetFeaturePool(self, ftype):
-		tmp = self.scores[ftype-1][self.mask[ftype-1,:],:]
-		print "Pool shape",tmp.shape
 		return self.scores[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetLabels(self,ftype):
-		tmp =self.labels[ftype-1][self.mask[ftype-1,:],:]
-		print "Pool shape",tmp.shape
 		return self.labels[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetWeights(self):
@@ -249,7 +245,7 @@ def test():
 	#ftypeMax, num_feature, num_sample)
 	fpool = FeaturePool(1, 1000, 6000*2)
 	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
-	p.MapFind([0], 0)
+	p.MapFind([3,5], 0)
 
 	print "\nIteration"
 
