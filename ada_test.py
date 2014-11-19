@@ -1,4 +1,4 @@
-import h5py
+#import h5py
 import numpy as np
 from numpy import matrix
 import threading
@@ -18,9 +18,10 @@ class ProcessWorker(Process):
 		Process.__init__(self)
 		# load the table
 		self.ftype = ftype
-		self.f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','r')
-		self.scores = self.f['type'+str(ftype)]
-		self.labels = self.f['labels']
+		#self.f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','r')
+
+		self.scores = np.load(savepath+'scores_feature_type'+str(ftype)+'.npy')
+		self.labels = np.load(savepath+'scores_labels_type'+str(ftype)+'.npy')
 		self.num_sample = self.scores.shape[1]
 		assert(self.num_sample==numfaces+numnonfaces)
 		self.num_feature = self.scores.shape[0]

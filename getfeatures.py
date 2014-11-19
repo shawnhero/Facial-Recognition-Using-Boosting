@@ -2,13 +2,13 @@ import adaboosting as ada
 import weaklearners as weak
 import numpy as np
 import timeit
-import h5py
+#import h5py
 # import thread
 import threading
 from multiprocessing import Process
 
 
-savepath = "/Users/Shawn/cs276/data/"
+savepath = "/home/ubuntu/saveddata/"
 
 
 class Combo():
@@ -86,10 +86,13 @@ class Combo():
 		self.lock.acquire()
 		print 'type'+str(ftype)+' sorting completed. Now begin saving..'
 		self.lock.release()
-		f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','w-')
-		f.create_dataset("type"+str(ftype), data=train_scores)
-		f.create_dataset("labels", data=labels)
-		f.close()
+		np.save(savepath+'scores_feature_type'+str(ftype), train_scores)
+		np.save(savepath+'scores_labels_type'+str(ftype), labels)
+
+		# f = h5py.File(savepath+'scores_feature_type'+str(ftype)+'.hdf5','w-')
+		# f.create_dataset("type"+str(ftype), data=train_scores)
+		# f.create_dataset("labels", data=labels)
+		# f.close()
 		self.lock.acquire()
 		print "Save Completed!"
 		self.lock.release()
