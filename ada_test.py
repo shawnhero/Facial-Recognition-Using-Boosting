@@ -231,11 +231,14 @@ class FeaturePool():
 		
 
 	def GetFeaturePool(self, ftype):
-		return self.scores[ftype-1, self.mask[ftype-1,:]]
+		tmp = self.scores[ftype-1][self.mask[ftype-1,:],:]
+		print "Pool shape",tmp.shape
+		return self.scores[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetLabels(self,ftype):
-		#return self.labels[ftype-1][self.mask[ftype-1,:],:]
-		return self.labels[ftype-1, self.mask[ftype-1,:]]
+		tmp =self.labels[ftype-1][self.mask[ftype-1,:],:]
+		print "Pool shape",tmp.shape
+		return self.labels[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetWeights(self):
 		return self.weights
