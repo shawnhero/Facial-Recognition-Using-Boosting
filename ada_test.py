@@ -105,6 +105,7 @@ class ProcessWorker(Process):
 				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.0%}".format(1.0*i/len(rowlist)), "done.."
 				lock.release()
 			error_infor = self.FindFeatureError(row)
+			print "error", error_infor[1]
 			if error_infor[1]<minError:
 				minError = error_infor[1]
 				minResult = error_infor
@@ -200,7 +201,6 @@ class FeaturePool():
 		self.min_error = 1
 		while not Q.empty():
 			item = Q.get()
-			print "reducing,", item[2]
 			if item[2] < self.min_error:
 				self.min_type = item[0]
 				# getting the row number of the selected feature is tricky
