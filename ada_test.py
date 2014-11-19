@@ -171,7 +171,7 @@ class FeaturePool():
 
 		# initialize masks and positions to record selected ones
 		self.mask = np.ones((ftypeMax, fNum), dtype=bool)
-		self.index = range(fNum)
+		self.index = np.array(range(fNum))
 
 
 		
@@ -203,6 +203,9 @@ class FeaturePool():
 			if item[2] < self.min_error:
 				self.min_type = item[0]
 				# getting the row number of the selected feature is tricky
+				print item[0], item[1]
+				print self.mask.shape
+				print self.mask[item[0]-1,:].shape
 				self.min_row = self.index[self.mask[item[0]-1,:]][item[1]]
 				self.min_error = item[2]
 				self.min_threshold = item[3]
