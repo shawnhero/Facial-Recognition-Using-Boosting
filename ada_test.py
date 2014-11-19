@@ -228,8 +228,6 @@ class FeaturePool():
 		
 
 	def GetFeaturePool(self, ftype):
-		print self.mask[ftype-1,:].shape
-		print self.scores[ftype-1].shape
 		return self.scores[ftype-1][self.mask[ftype-1,:],:]
 
 	def GetLabels(self,ftype):
@@ -243,7 +241,8 @@ if __name__ == "__main__":
 	T = 3
 	t = 0
 	numfType = 2
-	fpool = FeaturePool(2, 6000, 6000*2)
+	#ftypeMax, num_feature, num_sample)
+	fpool = FeaturePool(2, 2000, 6000*2)
 	pros = []
 	for i in range(1,numfType+1):
 		#ftype, numfaces, numnonfaces, scores, labels, weights
