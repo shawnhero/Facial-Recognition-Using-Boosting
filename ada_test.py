@@ -216,6 +216,7 @@ class FeaturePool():
 		self.alphas.append(alpha)
 		self.selected.append((self.min_type, self.min_row))
 		## mask the selected feature 
+		print "Masking ftype"+str(self.min_type-1)_" row"+str(self.min_row)
 		self.mask[self.min_type-1, self.min_row] = True
 		
 		# update the weights of the data points
@@ -230,10 +231,11 @@ class FeaturePool():
 		
 
 	def GetFeaturePool(self, ftype):
-		return self.scores[ftype-1][self.mask[ftype-1,:],:]
+		return self.scores[ftype-1, self.mask[ftype-1,:]]
 
 	def GetLabels(self,ftype):
-		return self.labels[ftype-1][self.mask[ftype-1,:],:]
+		#return self.labels[ftype-1][self.mask[ftype-1,:],:]
+		return self.labels[ftype-1, self.mask[ftype-1,:]]
 
 	def GetWeights(self):
 		return self.weights
