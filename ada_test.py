@@ -59,6 +59,7 @@ class ProcessWorker(Process):
 			# http://stackoverflow.com/questions/9777282/the-best-way-to-calculate-the-best-threshold-with-p-viola-m-jones-framework
 			above_is_positive = True
 			## initialize the threshold so that everyone is determined to be positive
+			assert(np.fabs(sum(self.weights)-1.0)<0.000001)
 			error = sum(self.weights[~self.labels[row,:]])
 			maxerror = [-1, error]
 			minerror = [-1, error]
@@ -100,9 +101,9 @@ class ProcessWorker(Process):
 		i = 0
 		for row in rowlist:
 			i += 1
-			if i % 3 ==0:
+			if i % 15 ==0:
 				lock.acquire()
-				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.1%}".format(1.0*i/len(rowlist)), "done.."
+				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.0%}".format(1.0*i/len(rowlist)), "done.."
 				lock.release()
 			error_infor = self.FindFeatureError(row)
 			if error_infor[1]<minError:
@@ -203,9 +204,6 @@ class FeaturePool():
 			if item[2] < self.min_error:
 				self.min_type = item[0]
 				# getting the row number of the selected feature is tricky
-				print item[0], item[1]
-				print self.mask.shape
-				print self.mask[item[0]-1,:].shape
 				self.min_row = self.index[self.mask[item[0]-1,:]][item[1]]
 				self.min_error = item[2]
 				self.min_threshold = item[3]
