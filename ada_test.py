@@ -248,8 +248,8 @@ if __name__ == "__main__":
 		t += 1
 		pros = []
 		for i in range(1,numfType+1):
-			#ftype, numfaces, numnonfaces, scores, labels, weights
-			p = ProcessWorker(i, 6000, 6000, fpool.GetFeaturePool(i), fpool.GetLabels(i), fpool.GetWeights())
+			#ftype, scores, labels, weights
+			p = ProcessWorker(i, fpool.GetFeaturePool(i), fpool.GetLabels(i), fpool.GetWeights())
 			p.start()
 			pros.append(p)
 		for p in pros:
