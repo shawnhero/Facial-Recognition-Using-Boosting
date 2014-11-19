@@ -1,4 +1,4 @@
-import adaboosting as ada
+#import adaboosting as ada
 import weaklearners as weak
 import numpy as np
 import timeit
@@ -115,7 +115,7 @@ def getFeature(i, numfeatures):
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	comb = Combo(numfaces=6000,numnonfaces=6000,numfeatures=6000, imgwidth=24)
+	comb = Combo(numfaces=6000,numnonfaces=6000,numfeatures=6000, imgwidth=16)
 	comb.PrepareFeatures()
 	pros = []
 	for i in range(1,7):

@@ -7,7 +7,7 @@ import timeit
 from mapreduce import SimpleMapReduce
 import sys
 
-savepath = "/Users/Shawn/cs276/data/"
+savepath = "../saveddata/" 
 lock = threading.Lock()
 class ProcessWorker(Process):
 	"""
