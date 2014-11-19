@@ -181,8 +181,8 @@ class FeaturePool():
 		for i in range(ftypeMax):
 			score = np.load(savepath+'scores_feature_type'+str(i+1)+'.npy')
 			label = np.load(savepath+'scores_labels_type'+str(i+1)+'.npy')
-			scores.append(score)
-			labels.append(label)
+			self.scores.append(score)
+			self.labels.append(label)
 
 		self.alphas = []
 		self.selected = []
