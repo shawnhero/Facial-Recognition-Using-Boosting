@@ -68,18 +68,15 @@ class ProcessWorker(Process):
 			for j in range(self.labels.shape[1]):
 				# for those<=j, decide as negative
 				# for those>j, decide as positive
+				print self.scores[row,j], self.labels[row,j]
 				if self.labels[row,j]:
 					error += self.weights[j]
 				else:
 					error -= self.weights[j]
 				if error>maxerror[1]:
-					print "Bigger found:", j, error
-					print "Current Score and label", self.scores[row,j], self.labels[row,j]
 					maxerror[0] = j
 					maxerror[1] = error
 				if error<minerror[1]:
-					print "Smaller found"
-					print j, error
 					minerror[0] = j
 					minerror[1] = error
 			if 1- maxerror[1] < minerror[1]:
