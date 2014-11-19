@@ -246,7 +246,7 @@ class FeaturePool():
 		
 if __name__ == "__main__":
 	test()
-	return
+	sys.exit()
 	start = timeit.default_timer()
 	T = 3
 	t = 0
