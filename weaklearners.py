@@ -31,7 +31,7 @@ class Images():
  		self.path = path
  		self.isface = isface
  		self.samplesize = samplesize
- 		#np.random.seed(2014)
+ 		np.random.seed(2014)
 		self.samples = range(1, self.numfaces+1 if isface else self.numnonfaces+1)
 		flag = (samplesize==self.numfaces) if isface else (samplesize==self.numnonfaces)
 		if not flag:
@@ -321,7 +321,18 @@ class Scores():
 			self.type = ftype - 2
 		#print "\nNew Table Initialized. Feature Type:", self.type, "Vertical:", self.vertical, "Number of features:", features.shape[0]
 		#print  "Preparing to calculate the scores.."
-
+	def SetOneFeature(self, feature):
+		self.features = np.array([feature])
+	def SetfType(self, ftype):
+		if ftype<=2:
+			self.type = 1
+			self.vertical = True if ftype==1 else False
+		elif ftype<=4:
+			self.type = 2
+			self.vertical = True if ftype==3 else False
+		else:
+			## 5, 6 --> 3,4
+			self.type = ftype - 2
 
 	def getScore(self, feature):
 			# +-----------+
