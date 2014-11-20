@@ -221,7 +221,7 @@ class FeaturePool():
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	T = 3
+	T = 10
 	numfType = 6
 	#ftypeMax, num_feature, num_sample)
 	#fpool = FeaturePool(6, 12000, 11838+45356)
