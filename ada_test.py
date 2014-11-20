@@ -251,8 +251,6 @@ def test():
 
 
 if __name__ == "__main__":
-	test()
-	sys.exit()
 	start = timeit.default_timer()
 	T = 3
 	t = 0
