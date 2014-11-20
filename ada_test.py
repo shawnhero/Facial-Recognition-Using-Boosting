@@ -279,8 +279,3 @@ if __name__ == "__main__":
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
 
-def 
-
-
-
-
