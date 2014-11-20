@@ -150,6 +150,7 @@ class FeaturePool():
 		## initialize weights
 		self.weights = np.empty(num_sample)
 		self.weights.fill(1.0/num_sample)
+		print self.weights[0:10]
 
 		self.scores = []
 		self.labels = []
