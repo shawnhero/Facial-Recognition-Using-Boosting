@@ -230,7 +230,10 @@ class FeaturePool():
 			self.weights[i] = self.weights[i]*np.exp(-cur_label*alpha*cur_decision)
 		self.weights = self.weights/sum(self.weights)
 		
-		
+	def SaveResults(self):
+		np.savetxt('alphas',np.array(self.alphas), delimiter=',')
+		np.savetxt('selected_features', np.array(self.selected), delimiter=',')
+
 
 	def GetFeaturePool(self, ftype):
 		return self.scores[ftype-1][self.mask[ftype-1,:],:]
@@ -256,7 +259,7 @@ if __name__ == "__main__":
 	t = 0
 	numfType = 2
 	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(2, 2000, 6000*2)
+	fpool = FeaturePool(1, 1000, 6000*2)
 
 	while t<T: 
 		t += 1
@@ -272,9 +275,11 @@ if __name__ == "__main__":
 		## and change weights
 		print "\nIteration",t,"Finished!"
 		fpool.ReduceWorkers()
+	fpool.SaveResults()
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
 
+def 
 
 
 
