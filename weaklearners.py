@@ -362,6 +362,18 @@ class Scores():
 				c6 = self.table[feature[4]-1, feature[1]-1] if self.vertical else self.table[feature[0]-1, feature[4]-1]
 			except IndexError:
 				c6 = 0
+			# the indexError way won't work! it's numpy...
+			if self.vertical:
+				if feature[0]==0:
+					c1=c2=0
+				if feature[1]==0:
+					c1=c6=c5=0
+			else:
+				if feature[0]==0:
+					c1=c6=c5=0
+				if feature[1]==0:
+					c1=c2=0
+
 			c4 = self.table[feature[0]+feature[2]-1, feature[1]+feature[3]-1]
 			c3 = self.table[feature[4]-1, feature[1]+feature[3]-1] if self.vertical else self.table[feature[0]+feature[2]-1, feature[4]-1]
 			return (c4-c2-c5+c1)-2*(c3-c6-c2+c1)
@@ -400,6 +412,18 @@ class Scores():
 				c7 = self.table[feature[5]-1, feature[1]-1] if self.vertical else self.table[feature[0]-1, feature[5]-1]
 			except IndexError:
 				c7 = 0
+			# the indexError way won't work! it's numpy...
+			if self.vertical:
+				if feature[0]==0:
+					c1=c2=0
+				if feature[1]==0:
+					c1=c8=c7=c6=0
+			else:
+				if feature[0]==0:
+					c1=c8=c7=c6=0
+				if feature[1]==0:
+					c1=c2=0
+
 			c5 = self.table[feature[0]+feature[2]-1, feature[1]+feature[3]-1]
 			c4 = self.table[feature[5]-1, feature[1]+feature[3]-1] if self.vertical else self.table[feature[0]+feature[2]-1, feature[5]-1]
 			c3 = self.table[feature[4]-1, feature[1]+feature[3]-1] if self.vertical else self.table[feature[0]+feature[2]-1, feature[4]-1]
@@ -433,6 +457,13 @@ class Scores():
 				c5 = self.table[feature[0]+feature[2]-1, feature[1]-1]
 			except IndexError:
 				c5 = 0
+			# the indexError way won't work! it's numpy...
+			if feature[0]==0:
+				c1=c2=c9=0
+			if feature[1]==0:
+				c1=c4=c5=0
+
+
 			c3 = self.table[feature[4]-1, feature[5]-1]
 			c6 = self.table[feature[0]+feature[2]-1, feature[5]-1]
 			c7 = self.table[feature[0]+feature[2]-1, feature[1]+feature[3]-1]
@@ -458,6 +489,11 @@ class Scores():
 				c3 = self.table[feature[0]+feature[2]-1, feature[1]-1]
 			except IndexError:
 				c3 = 0
+			# the indexError way won't work! it's numpy...
+			if feature[0]==0:
+				c1=c2=0
+			if feature[1]==0:
+				c1=c3=0
 			c4 = self.table[feature[0]+feature[2]-1, feature[1]+feature[3]-1]
 			c5 = self.table[feature[4]-1, feature[5]-1]
 			c6 = self.table[feature[4]-1, feature[5]+feature[7]-1]
