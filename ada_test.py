@@ -259,7 +259,7 @@ if __name__ == "__main__":
 	t = 0
 	numfType = 2
 	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(1, 1000, 6000*2)
+	fpool = FeaturePool(2, 2000, 6000*2)
 
 	while t<T: 
 		t += 1
@@ -279,7 +279,6 @@ if __name__ == "__main__":
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
 
-def 
 
 
 
