@@ -60,6 +60,7 @@ class Images():
 class Features():
 	def __init__(self, imgwidth=16):
 		self.imgwidth = imgwidth
+		random.seed(2014)
 	def setTable(self, table):
 		self.table = table
 	def rand_feature1(self,n=2000, vertical= True):
