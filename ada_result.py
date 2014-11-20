@@ -68,10 +68,11 @@ class Results():
 
 	#At steps T=0, 10, 50, 100 respectively, plot the curve for the errors of  top 1000 weak classifiers among the pool of weak classifiers in increasing order. 
 	def ErrorCurve(self):
-		np.save('results/error_curve_iteraton0', SortFindMinError(self.scores, self.labels, self.weights[0]))
-		np.save('results/error_curve_iteraton10', SortFindMinError(self.scores, self.labels, self.weights[9]))
-		np.save('results/error_curve_iteraton50', SortFindMinError(self.scores, self.labels, self.weights[49]))
-		np.save('results/error_curve_iteraton100', SortFindMinError(self.scores, self.labels, self.weights[99]))
+		for i in range(10):
+			np.save('results/error_curve_iteraton0', SortFindMinError(self.scores, self.labels, self.weights[i]))
+		#np.save('results/error_curve_iteraton10', SortFindMinError(self.scores, self.labels, self.weights[9]))
+		#np.save('results/error_curve_iteraton50', SortFindMinError(self.scores, self.labels, self.weights[49]))
+		#np.save('results/error_curve_iteraton100', SortFindMinError(self.scores, self.labels, self.weights[99]))
 	#iii)  Plot the histograms of the positive and negative populations over the F(x) axis, for T=10, 50, 100 respectively.
 	#From the three histograms, you plot their corresponding ROC curves.
 	#def Populations(self):
