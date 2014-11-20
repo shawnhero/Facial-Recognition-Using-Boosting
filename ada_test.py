@@ -191,6 +191,7 @@ class FeaturePool():
 
 		self.alphas = []
 		self.selected = []
+		self.hist_weigts = [self.weights]
 
 
 	# to-do
@@ -229,10 +230,12 @@ class FeaturePool():
 			cur_label = 1 if self.labels[self.min_type-1][self.min_row, i] else -1
 			self.weights[i] = self.weights[i]*np.exp(-cur_label*alpha*cur_decision)
 		self.weights = self.weights/sum(self.weights)
+		self.hist_weigts.append(self.weights)
 		
 	def SaveResults(self):
-		np.savetxt('alphas',np.array(self.alphas), delimiter=',')
-		np.savetxt('selected_features', np.array(self.selected), delimiter=',')
+		np.savetxt('results/alphas.csv',np.array(self.alphas), fmt='%d', delimiter=',')
+		np.savetxt('results/selected_features.csv', np.array(self.selected),fmt='%d', delimiter=',')
+		np.savetxt('results/weights.csv', np.array(self.hist_weigts), delimiter=',')
 
 
 	def GetFeaturePool(self, ftype):
@@ -255,12 +258,12 @@ def test():
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	T = 3
-	t = 0
-	numfType = 2
+	T = 100
+	numfType = 6
 	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(2, 2000, 6000*2)
+	fpool = FeaturePool(6, 6000, 6000*2)
 
+	t = 0
 	while t<T: 
 		t += 1
 		pros = []
