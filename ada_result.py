@@ -15,7 +15,7 @@ Q = Queue()
 
 class SortByError(ada_train.ProcessWorker):
 	def __init__(self, ftype, scores, labels, weights):
-		ada_train.__init__(self,ftype, scores, labels, weights)
+		ada_train.ProcessWorker.__init__(self,ftype, scores, labels, weights)
 	def run(self):
 		##(error, ftype, row)
 		results = []
