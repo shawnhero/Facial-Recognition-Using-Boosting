@@ -252,7 +252,7 @@ def test():
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	T = 100
+	T = 25
 	numfType = 6
 	#ftypeMax, num_feature, num_sample)
 	fpool = FeaturePool(6, 6000, 6000*2)
