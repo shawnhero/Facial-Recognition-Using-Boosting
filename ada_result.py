@@ -66,11 +66,16 @@ class Results():
 		self.selected_features = np.loadtxt('results/selected_features.csv',  delimiter=',',dtype=int)
 		self.weights = np.loadtxt('results/weights.csv', delimiter=',')
 
+	#At steps T=0, 10, 50, 100 respectively, plot the curve for the errors of  top 1000 weak classifiers among the pool of weak classifiers in increasing order. 
 	def ErrorCurve(self):
 		np.save('results/error_curve_iteraton0', SortFindMinError(self.scores, self.labels, self.weights[0]))
 		np.save('results/error_curve_iteraton10', SortFindMinError(self.scores, self.labels, self.weights[9]))
 		np.save('results/error_curve_iteraton50', SortFindMinError(self.scores, self.labels, self.weights[49]))
 		np.save('results/error_curve_iteraton100', SortFindMinError(self.scores, self.labels, self.weights[99]))
+	#iii)  Plot the histograms of the positive and negative populations over the F(x) axis, for T=10, 50, 100 respectively.
+	#From the three histograms, you plot their corresponding ROC curves.
+	#def Populations(self):
+
 		
 			
 		
@@ -106,13 +111,9 @@ def displayTopTen(features):
 
 if __name__ == "__main__":
 	# load the results
-	alphas = np.loadtxt('results/alphas.csv', delimiter=',')
-	features = np.loadtxt('results/selected_features.csv',  delimiter=',',dtype=int)
-	weights = np.loadtxt('results/weights.csv',  delimiter=',')
-	print alphas.shape
-	print features.shape
-	print weights.shape
-	displayTopTen(features)
+	r = Results()
+	r.ErrorCurve()
+
 	# faces = weak.Images("../newface"+str(16)+"/",isface=True, samplesize=6000, imgwidth=16)
 	# nonfaces = weak.Images("../nonface"+str(16)+"/",isface=False, samplesize=6000, imgwidth=16)
 
@@ -121,9 +122,3 @@ if __name__ == "__main__":
 
 	# face_score_Gen = weak.Scores(face_table)
 	# nonface_score_Gen = weak.Scores(nonface_table)
-
-
-#At steps T=0, 10, 50, 100 respectively, plot the curve for the errors of  top 1000 weak classifiers among the pool of weak classifiers in increasing order.  
-#                        Compare these four curves  and see how many of the weak classifiers have errors close to 1/2;
-#             iii)  Plot the histograms of the positive and negative populations over the F(x) axis, for T=10, 50, 100 respectively.
-#                     From the three histograms, you plot their corresponding ROC curves.
