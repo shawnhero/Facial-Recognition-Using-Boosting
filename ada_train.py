@@ -32,26 +32,6 @@ class ProcessWorker(Process):
 		self.mapResult = []
 		self.num_sample = scores.shape[1]
 		return
-	#
-	# def changeweights(self, newweights):
-	# 	self.weights = newweights
-
-
-	# def fetchResult(self):
-	# 	print "fetching results for type",self.ftype
-	# 	return self.min_error, self.min_row
-
-	# def firstFetch(self):
-	# 	# first attempt can be avoided
-	# 	# see http://cplusadd.blogspot.com/2013/04/why-class-balancing-happens.html
-	# 	self.min_threshold, self.min_error, self.min_flag = self.FindFeatureError(0)
-	# 	self.min_row = 0
-	# 	return self.featureChosen()
-
-
-	# get the weighted error for the i-th feature
-	# return decision threshold, error, decision flag
-	#@staticmethod
 	
 	# return decision threshold, error, decision flag
 	def FindFeatureError(self,row):
@@ -132,7 +112,7 @@ class ProcessWorker(Process):
 		self.min_error = 1
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
-		threadnum = 15
+		threadnum = 3
 		self.pool = range(self.scores.shape[0])
 		rows = len(self.pool)/threadnum
 		list_rowlists = [self.pool[x:x+rows] for x in xrange(0, len(self.pool), rows)]
@@ -237,21 +217,13 @@ class FeaturePool():
 	def GetWeights(self):
 		return self.weights
 
-def test():
-	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(1, 1000, 6000*2)
-	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
-	p.MapFind([331], 0)
-
-	print "\nIteration"
-
-
 if __name__ == "__main__":
 	start = timeit.default_timer()
 	T = 10
 	numfType = 6
 	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(6, 12000, 11838+45356)
+	#fpool = FeaturePool(6, 12000, 11838+45356)
+	fpool = FeaturePool(6, 12000, 9000*2)
 
 	t = 0
 	while t<T: 
@@ -271,3 +243,11 @@ if __name__ == "__main__":
 	fpool.SaveResults()
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
+
+def test():
+	#ftypeMax, num_feature, num_sample)
+	fpool = FeaturePool(1, 1000, 6000*2)
+	p = ProcessWorker(1, fpool.GetFeaturePool(1), fpool.GetLabels(1), fpool.GetWeights())
+	p.MapFind([331], 0)
+
+	print "\nIteration"

@@ -8,7 +8,7 @@ import threading
 from multiprocessing import Process
 
 
-savepath = "/home/ubuntu/saveddata/"
+savepath = "../saveddata/"
 
 
 class Combo():
@@ -101,21 +101,13 @@ class Combo():
 
 	# ada.adaboosting(np.concatenate((train_faces_scores, train_nonfaces_scores), axis=0),  np.concatenate((np.ones(numfaces), np.zeros(numnonfaces)), T=50)
 
-## all the features are stored locally
-## now given an index, return the cooresponding feature
-def getFeature(i, numfeatures):
-	numfeatures = (numfeatures/6)*6
-	numsamples_per_feature = numfeatures/6
-	position = i/numsamples_per_feature
-	index = i%numsamples_per_feature
-	feature_table = np.loadtxt('./data/feature_type_'+str(position)+'.csv', delimiter=',')
-	return feature_table[index]
 
 
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	comb = Combo(numfaces=11838,numnonfaces=45356,numfeatures=12000, imgwidth=16)
+	#comb = Combo(numfaces=11838,numnonfaces=45356,numfeatures=12000, imgwidth=16)
+	comb = Combo(numfaces=9000,numnonfaces=9000,numfeatures=12000, imgwidth=16)
 	comb.PrepareFeatures()
 	pros = []
 	for i in range(1,7):
