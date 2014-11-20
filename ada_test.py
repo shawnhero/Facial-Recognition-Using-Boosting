@@ -82,34 +82,25 @@ class ProcessWorker(Process):
 				minerror = maxerror
 				minerror[1] = 1- minerror[1]
 			if minerror[0]==-1 or minerror[0]==self.num_sample-1:
-				print "Silly Threshold Found. Min Error,", minerror[1]
-				# print "Decision Threshold at,", minerror[0]
-				# print "Above is "+("Positive" if above_is_positive else "Negative")
-			else:
-				pass
-				# print 'Decision found for','type'+str(self.ftype), 'row'+str(row)
+				lock.acquire()
+				self.silly_count += 1
+				lock.release()
+				#print "Silly Threshold Found. Min Error,", minerror[1]
 			# return decision threshold, error, decision flag
 			return minerror[0], minerror[1], above_is_positive
 	# one thread responsible for multiple rows
 	def MapFind(self, rowlist, mid):
 		lock.acquire()
-		print "fType"+str(self.ftype)+", mID"+str(mid)+". Mapping.."
 		lock.release()
 		minError = 1
 		minRow = None
 		i = 0
 		for row in rowlist:
-			i += 1
-			if i % 15 ==0:
-				lock.acquire()
-				print "fType"+str(self.ftype)+", mID"+str(mid)+", {0:.0%}".format(1.0*i/len(rowlist)), "done.."
-				lock.release()
 			error_infor = self.FindFeatureError(row)
 			if error_infor[1]<minError:
 				minError = error_infor[1]
 				minResult = error_infor
 				minRow = row
-		print "map min error", minResult[1]
 		self.mapResult.append((minResult,minRow))
 		print "fType"+str(self.ftype)+", mID"+str(mid)+" finished."
 		print "Min Feature:", minRow
@@ -123,7 +114,7 @@ class ProcessWorker(Process):
 				minError =error_infor[1]
 				result = error_infor
 				minRow = row
-		print "fType"+str(self.ftype)+' reduced: feature withMinimum error', minRow
+		
 		self.mapResult = []
 		self.min_threshold = result[0]
 		self.min_error = result[1]
@@ -131,12 +122,15 @@ class ProcessWorker(Process):
 		self.min_row = minRow
 		Q.put((self.ftype, self.min_row, self.min_error, self.min_threshold, self.min_flag))
 		print "fType"+str(self.ftype)+" reduced! Min Error", self.min_error
+		print 'feature withMinimum error', minRow
+		print "silly Count:", self.silly_count, 'out of', self.scores.shape[0]
 
 	def run(self):
 		## findMinError
 		"""
 		Overloaded function provided by multiprocessing.Process.  Called upon start() signal
 		"""
+		self.silly_count = 0
 		print 'Starting Process type', self.ftype
 		print "Total number of samples,",self.num_sample
 		self.min_error = 1
