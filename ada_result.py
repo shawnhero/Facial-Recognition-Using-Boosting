@@ -58,7 +58,7 @@ class Results():
 		for i in range(1,7):
 			score = np.load(savepath+'scores_feature_type'+str(i)+'.npy')
 			label = np.load(savepath+'scores_labels_type'+str(i)+'.npy')
-			feature = np.loadtxt(savepath+'feature_type_'+str(int(ftype))+'.csv', delimiter=',',dtype=int)
+			feature = np.loadtxt(savepath+'feature_type_'+str(i)+'.csv', delimiter=',',dtype=int)
 			self.scores.append(score)
 			self.labels.append(label)
 			self.features.append(feature)
