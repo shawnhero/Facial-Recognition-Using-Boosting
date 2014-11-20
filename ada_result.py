@@ -1,14 +1,83 @@
 import numpy as np
 import weaklearners as weak
 import matplotlib.pyplot as plt
+import ada_train
 #savepath = "/home/ubuntu/saveddata/"
-savepath = "./results/"
-## all the features are stored locally
+savepath = "../saveddata/"
+from multiprocessing import Process, Queue
+
+Q = Queue()
+
+## global arguments
+
+
+
+
+class SortByError(ada_train.ProcessWorker):
+	def __init__(self, ftype, scores, labels, weights):
+		ada_train.__init__(self,ftype, scores, labels, weights)
+	def run(self):
+		##(error, ftype, row)
+		results = []
+		pool = range(self.scores.shape[0])
+		for row in pool:
+			threshold, error, flag = self.FindFeatureError(row)
+			#results.append((error, self.ftype, row))
+			results.append(error)
+		Q.put(results)
+
+def dump_queue(queue):
+	l = []
+	while not queue.empty():
+		l.append(queue.get())
+	return l
+
+## input: scores and labels are both lists of numpy arrays
+## output: sorted top 1000 error
+def SortFindMinError(scores, labels, weights):
+	pros = []
+	for i in range(1,7):
+		p = ProcessWorker(i, scores[i], labels[i], weights)
+		pros.append(p)
+		p.start()
+	for p in pros:
+		p.join()
+	results = dump_queue(Q)
+	##(error, ftype, row)
+	## sort the results according to the error
+	results.sort()
+	return results[0:1000]
+
+
+class Results():
+	"""docstring for Results"""
+	def __init__(self):
+		self.scores = []
+		self.labels = []
+		self.features = []
+		for i in range(1,7):
+			score = np.load(savepath+'scores_feature_type'+str(i)+'.npy')
+			label = np.load(savepath+'scores_labels_type'+str(i)+'.npy')
+			feature = np.loadtxt(savepath+'feature_type_'+str(int(ftype))+'.csv', delimiter=',',dtype=int)
+			self.scores.append(score)
+			self.labels.append(label)
+			self.features.append(feature)
+			
+		
+
+
+	## read the scores and labels
+	## read the weights
+	## call the SortFindMinError to get the results
+
+
 ## now given an index, return the cooresponding feature
 def getFeature(ftype, index):
 	feature_table = np.loadtxt('./saveddata/feature_type_'+str(int(ftype))+'.csv', delimiter=',',dtype=int)
 	print feature_table[index]
 	return feature_table[index]
+
+
 
 
 # Display the best ten features as images (after boosting);

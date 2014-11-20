@@ -248,10 +248,10 @@ def test():
 
 if __name__ == "__main__":
 	start = timeit.default_timer()
-	T = 25
+	T = 10
 	numfType = 6
 	#ftypeMax, num_feature, num_sample)
-	fpool = FeaturePool(6, 6000, 6000*2)
+	fpool = FeaturePool(6, 12000, 11838+45356)
 
 	t = 0
 	while t<T: 
@@ -271,4 +271,3 @@ if __name__ == "__main__":
 	fpool.SaveResults()
 	stop = timeit.default_timer()
 	print "Time Used,", round(stop - start, 4)
-
