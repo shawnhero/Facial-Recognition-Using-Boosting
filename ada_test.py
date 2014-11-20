@@ -90,8 +90,6 @@ class ProcessWorker(Process):
 			return minerror[0], minerror[1], above_is_positive
 	# one thread responsible for multiple rows
 	def MapFind(self, rowlist, mid):
-		lock.acquire()
-		lock.release()
 		minError = 1
 		minRow = None
 		i = 0
@@ -102,8 +100,6 @@ class ProcessWorker(Process):
 				minResult = error_infor
 				minRow = row
 		self.mapResult.append((minResult,minRow))
-		print "fType"+str(self.ftype)+", mID"+str(mid)+" finished."
-		print "Min Feature:", minRow
 
 	def Reduce(self):
 		minError = 1
@@ -132,7 +128,7 @@ class ProcessWorker(Process):
 		"""
 		self.silly_count = 0
 		print 'Starting Process type', self.ftype
-		print "Total number of samples,",self.num_sample
+		print "Total number of features,",self.scores.shape[0]
 		self.min_error = 1
 		# it = 0
 		#self.threadnum = min(500, len(self.pool))
