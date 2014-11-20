@@ -46,7 +46,7 @@ def SortFindMinError(scores, labels, weights):
 	##(error, ftype, row)
 	## sort the results according to the error
 	results.sort()
-	return results[0:1000]
+	return np.array(results[0:1000])
 
 
 class Results():
@@ -62,6 +62,16 @@ class Results():
 			self.scores.append(score)
 			self.labels.append(label)
 			self.features.append(feature)
+		self.alphas = np.loadtxt('results/alphas.csv', delimiter=',')
+		self.selected_features = np.loadtxt('results/selected_features.csv',  delimiter=',',dtype=int)
+		self.weights = np.loadtxt('results/weights.csv', delimiter=',')
+
+	def ErrorCurve(self):
+		np.save('results/error_curve_iteraton0', SortFindMinError(self.scores, self.labels, self.weights[0]))
+		np.save('results/error_curve_iteraton10', SortFindMinError(self.scores, self.labels, self.weights[9]))
+		np.save('results/error_curve_iteraton50', SortFindMinError(self.scores, self.labels, self.weights[49]))
+		np.save('results/error_curve_iteraton100', SortFindMinError(self.scores, self.labels, self.weights[99]))
+		
 			
 		
 
