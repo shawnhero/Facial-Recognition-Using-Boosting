@@ -63,12 +63,9 @@ class ProcessWorker(Process):
 			error = sum(self.weights[~self.labels[row,:]])
 			maxerror = [-1, error]
 			minerror = [-1, error]
-			print "initial error", error
-			print "sum of labels", sum(self.labels[row,:]), "out of",self.labels[row,:].shape
 			for j in range(self.labels.shape[1]):
 				# for those<=j, decide as negative
 				# for those>j, decide as positive
-				print self.scores[row,j], self.labels[row,j]
 				if self.labels[row,j]:
 					error += self.weights[j]
 				else:

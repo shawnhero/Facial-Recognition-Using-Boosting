@@ -481,13 +481,12 @@ def test():
 	#3. the score calculation, passed
 	vflag =True
 	width = 16
-	type = 4
+	type = 1
 	f = Features(width)
-	result = f.rand_feature4(1, vertical=vflag)
-	featureimg = f.GetFeatureImg(result[0], 4)
+	#result = f.rand_feature4(1, vertical=vflag)
+	featureimg = f.GetFeatureImg([11,0,5,16,12], 1)
 	print "feature image,\n", featureimg
 	table = GetTable(featureimg)
-	print f.getScore(table, result[0], type=type)
 	imgplot = plt.imshow(featureimg, cmap=plt.cm.gray, vmax=1, vmin=-2)
 	imgplot.set_interpolation('nearest')
 	plt.show()
