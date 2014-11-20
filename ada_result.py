@@ -37,7 +37,7 @@ def dump_queue(queue):
 def SortFindMinError(scores, labels, weights):
 	pros = []
 	for i in range(1,7):
-		p = ProcessWorker(i, scores[i], labels[i], weights)
+		p = SortByError(i, scores[i], labels[i], weights)
 		pros.append(p)
 		p.start()
 	for p in pros:
